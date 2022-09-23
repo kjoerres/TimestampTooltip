@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Timestamp Tooltip",
+  "short_name": "TimeTool",
+  "description": "Adds a tooltip of a more human readable timestamp above a selected timestamp",
+  "version": "0.0.1",
+  "minimum_chrome_version": "38",
+  "permissions": [
+    "contextMenus", 
+    "tabs",
+    "scripting",
+    "activeTab",
+    "notifications",
+    "storage"],
+  "icons": {
+    "16": "assets/search.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "assets/search.png",
+      "128": "assets/search.png"
+    }
+  },
+  "background": {
+    "service_worker": "main.js"
+  }
+}

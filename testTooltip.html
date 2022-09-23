@@ -1,0 +1,54 @@
+<html><head></head><body>
+<div style="padding-top:300px; padding-left:300px">
+    <style>
+    .tooltipLabel {
+        display: inline;
+        position: relative;
+    }
+    .tooltipLabel .tooltipContent {
+        /*visibility: hidden;*/
+        text-align: center;
+        font-weight: normal;
+        font-size: 12px;
+        background: #333;
+        bottom: 26px;
+        left: 50%;
+        position: absolute;
+        z-index: 998;
+        transform: translateX(-50%);
+        background-color: #6e6d6d;
+        border-radius: 5px;
+        color: white;
+        padding: 5px 10px;
+        min-width:  210px;
+    }
+    .tooltipLabel:hover .tooltipContent {
+        visibility: visible;
+    }
+    .tooltipLabel:hover .tooltipContentTriangle {
+        visibility: visible;
+    }
+    .tooltipContentTriangle {
+        /*visibility: hidden;*/
+        position: absolute;
+        z-index: 999;
+        top: 0px;
+        left: 50%;
+        transform: translate(-9px, -12px);
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 10px solid #6e6d6d;
+    }
+</style>
+<span class="tooltipLabel">
+    <span>
+        2022-02-03T09:14:11
+    </span>
+<span class="tooltipContentTriangle"></span>
+    <span class="tooltipContent">
+        February 03, 2022 09:14:11 GMT-05:00
+    </span>
+</span>
+</div>
+</body>
+</html>

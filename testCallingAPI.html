@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="assets/popup.css">
+</head>
+<body>
+<div id="notify-wrapper">
+    <div id="notify-header">
+        <h1>Tst</h1>
+        <li>3/2/2010 at 3 am</li>
+        <li>2022-09-16T12:28:52</li>
+        <li>3/2/2010 at 3 am</li>
+        <li>2022-09-16T12:23:52</li>
+    </div>
+    <button onclick="myJavascriptFunction()">Click me</button>
+</div>
+<script>
+    function myJavascriptFunction() {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'https://www.wolframcloud.com/obj/kjoerres/timestampConvert?i=Friday%20august%203rd%20at%203%20am');
+        request.send();
+        request.onload = ()=>{
+            const listItem = document.querySelector("li:last-child");
+            const newItem = document.createElement('li');
+            newItem.innerHTML = JSON.parse(request.response);
+            listItem.parentNode.replaceChild(newItem, listItem);
+        }
+    }
+
+</script>
+</body>
+</html>
