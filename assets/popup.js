@@ -35,6 +35,8 @@ notify.addEventListener( 'click', () => {
             if (request.response != '$Failed') {
                 var betterTimestamp = JSON.parse(request.response);
                 res.innerHTML = betterTimestamp
+            } else {
+                res.innerHTML = 'Unable to interpret'
             }
         }
     }
