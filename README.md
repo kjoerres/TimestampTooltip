@@ -3,6 +3,31 @@
 ## Description
 This extension converts the given timestamp into a more human-readable form, converting to your local timezone if possible.
 
+## Timestamp Pattern Support
+The following patterns are just some timestamp patterns supported:
+
+Unix time:
+
+e.g. 1663349331567
+
+Typical timestamp formats:
+
+| Timestamp format             | Example                   |
+|------------------------------|---------------------------|
+| MMM dd yyyy HH:mm:ss	        | Jun 09 2018 15:28:14      |
+| yyyy-mm-dd*hh:mm:ss          | 2017-07-04*13:23:55       |
+| MMM dd, yyyy hh:mm:ss a      | Dec 2, 2017 2:39:58 AM    |
+| MMM dd HH:mm:ss ZZZZ         | MMM dd HH:mm:ss ZZZZ      |
+| yyyy-MM-dd'T'HH:mm:ss.SSS'Z' | 2017-07-01T14:59:55.711Z  |
+
+
+Interpreted Timestamps:
+
+| Example|
+|---------------------|
+|saturday sept 24th at 5pm|
+| 3/2/2010 at 3 am|
+
 ## Usage
 This extension can be used in one of 2 ways.
 
