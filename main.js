@@ -1,23 +1,11 @@
-function getJSDate(input) {
-    let jsDate = new Date(input.replace(/\n/gm, ''));
-    let newTime;
-    if (jsDate != 'Invalid Date') {
-        newTime = jsDate.toLocaleString('en-US', {
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: true
-        });
-        jsDate = jsDate.toString();
-        jsDate = jsDate.replace(/[0-9]{1,2}[:][0-9]{1,2}[:][0-9]{1,2}/gm, newTime);
-        jsDate = jsDate.replace(/\((.*?)\)/gm, '');
-        jsDate = jsDate.replace(/0{2}$/gm, ':00')
-    }
-    return jsDate
-}
 
-function updatePage(newTimestamp, range) {
-    var html = `
+
+function addTimestamp(info, tab) {
+
+    // Define helper function within addTimestamp function. Otherwise it does not seem that this function can be
+    // "seen" as we keep getting 'updatePage is not defined' ReferenceError.
+    function updatePage(newTimestamp, range) {
+        const html = `
         <style>
     .tooltipLabel {
         display: inline;
@@ -29,7 +17,6 @@ function updatePage(newTimestamp, range) {
         text-align: center;
         font-weight: normal;
         font-size: 14px;
-        background: #333;
         bottom: 26px;
         left: 50%;
         position: absolute;
@@ -66,23 +53,21 @@ function updatePage(newTimestamp, range) {
 ` + newTimestamp + `
     </span>
 </span>`;
-    // Remove contents of current range. Could also use: range.deleteContents();
-    range.extractContents();
+        // Remove contents of current range. Could also use: range.deleteContents();
+        range.extractContents();
 
-    var el = document.createElement("span");
-    el.innerHTML = html;
-    var frag = document.createDocumentFragment(), node, lastNode;
-    while ((node = el.firstChild)) {
-        lastNode = frag.appendChild(node);
+        const el = document.createElement("span");
+        el.innerHTML = html;
+        let frag = document.createDocumentFragment(), node, lastNode;
+        while ((node = el.firstChild)) {
+            lastNode = frag.appendChild(node);
+        }
+        range.insertNode(frag);
     }
-    range.insertNode(frag);
-}
-
-function addTimestamp(info, tab) {
 
     //console.log(self,"self")  //log self (should be Window)
     let window = self;
-    var sel, range;
+    let sel, range;
     let jsDate;
 
     if (window.getSelection) {
@@ -92,22 +77,46 @@ function addTimestamp(info, tab) {
         //console.log(sel)            // log selection
 
         if (sel.getRangeAt && sel.rangeCount) {
+            // Get the selected text.
             range = window.getSelection().getRangeAt(0);
 
-            jsDate = getJSDate(sel.toString());
+            // Convert the selection to a string
+            let stringSelection = sel.toString();
 
+            // Try to parse the selection using the js Date object. This is much quicker than the alternative to call
+            // an API to parse the date.
+            jsDate = new Date(stringSelection.replace(/\n/gm, ''));
             if (jsDate != 'Invalid Date') {
-                console.log("Using JS Date")
+                //console.log("Using JS Date") // Log that we are using the JS path to interpret date
+                let newTime;
+                newTime = jsDate.toLocaleString('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    hour12: true
+                });
+                jsDate = jsDate.toString();
+                // Replace hour, minute, second with better formated version (using 12hour format rather than 24h)
+                jsDate = jsDate.replace(/[0-9]{1,2}[:][0-9]{1,2}[:][0-9]{1,2}/gm, newTime);
+
+                // Remove anything in parentheses. The js Date by default puts the timezone name within parentheses.
+                jsDate = jsDate.replace(/\((.*?)\)/gm, '');
+
+                // Replace the timezone GMTXX00 with GMTXX:00. // As of 9/26/22 this does not seem to be working perhaps due to the end of line '$' constraint?
+                jsDate = jsDate.replace(/0{2}$/gm, ':00');
+
                 updatePage(jsDate, range)
             } else {
-                console.log("Using Wolfram Date")
+                // console.log("Using Wolfram Date") // Log that we are using the Wolfram API path to interpret date
                 var request = new XMLHttpRequest();
                 request.open('GET', 'https://www.wolframcloud.com/obj/kjoerres/timestampConvert?i=' + encodeURIComponent(range));
                 request.send();
                 request.onload = () => {
                     if (request.response != '$Failed') {
-                        var betterTimestamp = JSON.parse(request.response);
+                        const betterTimestamp = JSON.parse(request.response);
                         updatePage(betterTimestamp, range)
+                    } else {
+                        alert('Unable to convert \'' +  stringSelection + '\' to a timestamp')
                     }
                 }
             }
@@ -118,8 +127,7 @@ function addTimestamp(info, tab) {
         range.collapse(false);
         range.pasteHTML(html);
     }
-  };
-
+  }
 
 
 //Add a listener to create the ContextMenu
@@ -170,6 +178,3 @@ chrome.runtime.onMessage.addListener( data => {
         notify( data.message );
     }
 });
-
-
-"<input class=\"globalNav-search-0418 globalNav-search-0424\" readonly=\"\" type=\"search\" autocomplete=\"off\" spellcheck=\"false\" tabindex=\"-1\" data-testid=\"awsc-concierge-input-hint\" value=\"\"><span style=\"color:blue;\"></span><input class=\"globalNav-search-0419 globalNav-search-0425\" type=\"search\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"Search for services, features, blogs, docs, and more\" data-testid=\"awsc-concierge-input\" maxlength=\"256\" value=\"\">"
