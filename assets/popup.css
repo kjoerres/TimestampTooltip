@@ -1,7 +1,7 @@
 
 
 body {
-    width: 250px;
+    width: 350px;
 }
 
 #notify-wrapper {
@@ -9,6 +9,12 @@ body {
 }
 
 #notify-header h1 {
+    font-size: 12px;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+#notify-result-header h1 {
     font-size: 12px;
     margin: 0;
     margin-bottom: 10px;
@@ -64,8 +70,16 @@ textarea {
     padding: 8px;
     border-radius: 4px;
     display: block;
-    width: 224px;
+    width: 324px;
     margin-top: 5px;
+}
+
+#notify-res {
+    border: 2px solid rgba( 26, 115, 232, 0.4 );
+    padding: 8px;
+    border-radius: 4px;
+    display: block;
+    width: 324px;
 }
 
 .notify-buttons p {
