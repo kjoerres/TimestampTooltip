@@ -82,8 +82,7 @@ function addTimestamp(info, tab) {
 
     //console.log(self,"self")  //log self (should be Window)
     let window = self;
-    var sel, range, node;
-    let newTime;
+    var sel, range;
     let jsDate;
 
     if (window.getSelection) {
