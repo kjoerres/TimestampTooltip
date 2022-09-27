@@ -13,16 +13,16 @@
     "notifications",
     "storage"],
   "icons": {
-    "16": "assets/search16.png",
-    "48": "assets/search48.png",
-    "128": "assets/search128.png"
+    "16": "assets/search.png",
+    "48": "assets/search.png",
+    "128": "assets/search.png"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "assets/search16.png",
-      "48": "assets/search48.png",
-      "128": "assets/search128.png"
+      "16": "assets/search.png",
+      "48": "assets/search.png",
+      "128": "assets/search.png"
     }
   },
   "background": {
