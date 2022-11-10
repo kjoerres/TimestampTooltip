@@ -85,7 +85,10 @@ function addTimestamp(info, tab) {
 
             // Try to parse the selection using the js Date object. This is much quicker than the alternative to call
             // an API to parse the date.
-            jsDate = new Date(stringSelection.replace(/\n/gm, ''));
+            jsDate = new Date(stringSelection.replace(/(\n|\t)/gm, ''));
+            let jsDateRaw = jsDate;
+
+
             if (jsDate != 'Invalid Date') {
                 //console.log("Using JS Date") // Log that we are using the JS path to interpret date
                 let newTime;
@@ -103,7 +106,7 @@ function addTimestamp(info, tab) {
                 jsDate = jsDate.replace(/\((.*?)\)/gm, '');
 
                 // Replace the timezone GMTXX00 with GMTXX:00. // As of 9/26/22 this does not seem to be working perhaps due to the end of line '$' constraint?
-                jsDate = jsDate.replace(/0{2}$/gm, ':00');
+                jsDate = jsDate.replace(/0{2}$/gm, ':00')
 
                 updatePage(jsDate, range)
             } else {
