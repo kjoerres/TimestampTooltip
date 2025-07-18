@@ -13,7 +13,7 @@
                 display: inline;
                 position: relative;
                 white-space: nowrap;
-                cursor: help;
+                cursor: text;
                 border-bottom: 1px dotted #666;
             }
             .tooltipLabel .tooltipContent {

@@ -30,6 +30,7 @@ function addTimestampToSelection() {
         display: inline;
         position: relative;
         white-space: nowrap;
+        cursor: text;
     }
     .tooltipLabel .tooltipContent {
         visibility: hidden;
