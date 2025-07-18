@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <title>Timestamp Tooltip</title>
     <link rel="stylesheet" href="assets/popup.css">
 </head>
 <body>
@@ -10,16 +11,17 @@
     </div>
     <div id="notify-containers">
         <div class="notify-form">
+            <label for="notify-text" class="sr-only">Timestamp input</label>
             <textarea name="text" id="notify-text" placeholder="Place timestamp here"></textarea>
         </div>
         <br>
         <div id="notify-result-header">
             <h1>Output</h1>
         </div>
-        <div id="notify-res", style="border:1px solid black;">
+        <div id="notify-res" style="border:1px solid black;">
 
         </div>
-        <div class=notify-buttons>
+        <div class="notify-buttons">
             <button class="button primary" id="notify-button">
                 Convert
             </button>
