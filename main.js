@@ -1,16 +1,36 @@
+// Service worker for Timestamp Tooltip extension (Manifest V3)
 
+// Add a listener to create the ContextMenu
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        id: 'addTimestamp',
+        title: "Add timestamp tooltip",
+        contexts: ["selection"]
+    });
+});
 
-function addTimestamp(info, tab) {
+// Handler for the clicking of the "add timestamp" action
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if ('addTimestamp' === info.menuItemId) {
+        // Inject the content script and execute the timestamp conversion
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: addTimestampToSelection,
+        });
+    }
+});
 
-    // Define helper function within addTimestamp function. Otherwise it does not seem that this function can be
-    // "seen" as we keep getting 'updatePage is not defined' ReferenceError.
-    function updatePage(newTimestamp, range) {
+// Function to be injected into the page
+function addTimestampToSelection() {
+    // Define helper function to update the page with tooltip
+    function updatePage(newTimestamp, originalText, range) {
         const html = `
         <style>
     .tooltipLabel {
         display: inline;
         position: relative;
         white-space: nowrap;
+        cursor: text;
     }
     .tooltipLabel .tooltipContent {
         visibility: hidden;
@@ -26,7 +46,7 @@ function addTimestamp(info, tab) {
         border-radius: 5px;
         color: white;
         padding: 5px 10px;
-        min-width:  230px;
+        min-width: 230px;
     }
     .tooltipLabel:hover .tooltipContent {
         visibility: visible;
@@ -47,13 +67,14 @@ function addTimestamp(info, tab) {
     }
 </style>
 <span class="tooltipLabel">
-    <span>` + range + `</span>
+    <span>` + originalText + `</span>
 <span class="tooltipContentTriangle"></span>
     <span class="tooltipContent">
 ` + newTimestamp + `
     </span>
 </span>`;
-        // Remove contents of current range. Could also use: range.deleteContents();
+
+        // Remove contents of current range
         range.extractContents();
 
         const el = document.createElement("span");
@@ -65,119 +86,56 @@ function addTimestamp(info, tab) {
         range.insertNode(frag);
     }
 
-    //console.log(self,"self")  //log self (should be Window)
-    let window = self;
     let sel, range;
     let jsDate;
 
     if (window.getSelection) {
-
         sel = window.getSelection();
-        //console.log(sel.toString()) // log selection text
-        //console.log(sel)            // log selection
 
         if (sel.getRangeAt && sel.rangeCount) {
-            // Get the selected text.
+            // Get the selected text
             range = window.getSelection().getRangeAt(0);
-
-            // Convert the selection to a string
             let stringSelection = sel.toString();
 
-            // Try to parse the selection using the js Date object. This is much quicker than the alternative to call
-            // an API to parse the date.
-            jsDate = new Date(stringSelection.replace(/(\n|\t)/gm, ''));
-            let jsDateRaw = jsDate;
+            // Check if input is a Unix timestamp (numeric)
+            const numericInput = parseFloat(stringSelection);
+            if (!isNaN(numericInput) && /^\d+(\.\d+)?$/.test(stringSelection.trim())) {
+                // Handle Unix timestamps - check if it's in seconds or milliseconds
+                let timestamp = numericInput;
 
+                // If timestamp appears to be in seconds, convert to milliseconds
+                if (timestamp < 10000000000) {
+                    timestamp = timestamp * 1000;
+                }
 
-            if (jsDate != 'Invalid Date') {
-                //console.log("Using JS Date") // Log that we are using the JS path to interpret date
-                let newTime;
-                newTime = jsDate.toLocaleString('en-US', {
+                jsDate = new Date(timestamp);
+            } else {
+                // Try to parse as regular date string
+                jsDate = new Date(stringSelection.replace(/(\n|\t)/gm, ''));
+            }
+
+            if (!isNaN(jsDate.getTime()) && jsDate.toString() !== 'Invalid Date') {
+                // Successfully parsed with JS Date
+                let newTime = jsDate.toLocaleString('en-US', {
                     hour: 'numeric',
                     minute: 'numeric',
                     second: 'numeric',
                     hour12: true
                 });
-                jsDate = jsDate.toString();
-                // Replace hour, minute, second with better formated version (using 12hour format rather than 24h)
-                jsDate = jsDate.replace(/[0-9]{1,2}[:][0-9]{1,2}[:][0-9]{1,2}/gm, newTime);
 
-                // Remove anything in parentheses. The js Date by default puts the timezone name within parentheses.
-                jsDate = jsDate.replace(/\((.*?)\)/gm, '');
+                let formattedDate = jsDate.toString();
+                // Replace hour, minute, second with better formatted version
+                formattedDate = formattedDate.replace(/[0-9]{1,2}[:][0-9]{1,2}[:][0-9]{1,2}/gm, newTime);
+                // Remove anything in parentheses
+                formattedDate = formattedDate.replace(/\((.*?)\)/gm, '');
+                // Replace timezone format
+                formattedDate = formattedDate.replace(/0{2}$/gm, ':00');
 
-                // Replace the timezone GMTXX00 with GMTXX:00. // As of 9/26/22 this does not seem to be working perhaps due to the end of line '$' constraint?
-                jsDate = jsDate.replace(/0{2}$/gm, ':00')
-
-                updatePage(jsDate, range)
+                updatePage(formattedDate, stringSelection, range);
             } else {
-                // console.log("Using Wolfram Date") // Log that we are using the Wolfram API path to interpret date
-                var request = new XMLHttpRequest();
-                request.open('GET', 'https://www.wolframcloud.com/obj/kjoerres/timestampConvert?i=' + encodeURIComponent(range));
-                request.send();
-                request.onload = () => {
-                    if (request.response != '$Failed') {
-                        const betterTimestamp = JSON.parse(request.response);
-                        updatePage(betterTimestamp, range)
-                    } else {
-                        alert('Unable to convert \'' +  stringSelection + '\' to a timestamp')
-                    }
-                }
+                // Unable to parse with JavaScript Date
+                alert('Unable to convert \'' + stringSelection + '\' to a timestamp');
             }
         }
-    } else if (document.selection && document.selection.createRange) {
-        console.log('here2')
-        range = document.selection.createRange();
-        range.collapse(false);
-        range.pasteHTML(html);
     }
-  }
-
-
-//Add a listener to create the ContextMenu
-chrome.runtime.onInstalled.addListener( () => {
-    chrome.contextMenus.create({
-        id: 'addTimestamp',
-        title: "Add timestamp tooltip",
-        contexts:[ "selection" ]
-    });
-});
-
-chrome.contextMenus.onClicked.addListener(addTimestamp)
-
-// Handler for the clicking of the "add timestamp" action
-chrome.contextMenus.onClicked.addListener( ( info, tab ) => {
-    if ( 'addTimestamp' === info.menuItemId ) {
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            const tabId = tabs[0].id;
-            chrome.scripting.executeScript( {
-                target: {tabId},
-                func: addTimestamp,
-                args: [info, tab]
-            });
-        });
-    }
-} );
-
-
-
-
-
-// Send notification
-const notify = message => {
-    return chrome.notifications.create(
-        '',
-        {
-            type: 'basic',
-            title: 'Notify!',
-            message: message || 'Notify!',
-            iconUrl: './assets/search.png',
-        }
-    );
-};
-
-// Add a listener to issue a notification
-chrome.runtime.onMessage.addListener( data => {
-    if ( data.type === 'notification' ) {
-        notify( data.message );
-    }
-});
+}

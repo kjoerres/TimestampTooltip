@@ -1,41 +1,35 @@
 {
   "manifest_version": 3,
   "name": "Timestamp Tooltip",
-  "short_name": "TimeTool",
-  "description": "Adds a tooltip of a more human readable timestamp above a selected timestamp",
-  "version": "0.0.1",
-  "minimum_chrome_version": "38",
+  "version": "1.0",
+  "description": "Converts timestamps into human-readable form with tooltips",
   "permissions": [
-    "contextMenus", 
-    "tabs",
+    "contextMenus",
     "scripting",
     "activeTab",
-    "notifications",
-    "storage"],
-  "icons": {
-    "16": "assets/search.png",
-    "48": "assets/search.png",
-    "128": "assets/search.png"
-  },
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "assets/search.png",
-      "48": "assets/search.png",
-      "128": "assets/search.png"
-    }
-  },
+    "notifications"
+  ],
   "background": {
     "service_worker": "main.js"
   },
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "main.js"
-      ]
+      "matches": ["<all_urls>"],
+      "js": ["assets/content.js"],
+      "run_at": "document_end"
     }
-  ]
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Timestamp Tooltip",
+    "default_icon": {
+      "128": "assets/iconteal.png"
+    }
+  },
+  "icons": {
+    "128": "assets/iconteal.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }
